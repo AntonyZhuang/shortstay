@@ -4,6 +4,14 @@ ShortStay is a UI Design course team prototype for comparing short-term housing 
 
 ShortStay 是一个 UI Design 课程团队原型，用于比较短租房源、记录联系与核实状态，并整理暂定选择的理由。
 
+## Try the prototype / 在线体验
+
+**[Open ShortStay / 点击体验原型](https://joewang-bw.github.io/shortstay/)**
+
+Open the link in a modern browser; no GitHub or ChatGPT account is required. 页面可以直接体验，无需登录。每位访客的数据只保存在自己的浏览器中，不会同步给其他人。
+
+The site is published from `dist/` by `.github/workflows/static.yml`. Changes pushed to `main` automatically trigger a new GitHub Pages deployment.
+
 ## Run locally / 本地运行
 
 No build step, npm packages, or API keys are required. Download or clone this repository and open `dist/index.html` in a modern browser.
