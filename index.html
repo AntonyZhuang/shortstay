@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ShortStay CP3 prototype: compare fictional housing options and keep track of decisions.">
+  <meta name="theme-color" content="#214d63">
+  <title>ShortStay · Your housing shortlist</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to workspace</a>
+  <div class="prototype-banner">
+    <span><strong>CP3 PROTOTYPE</strong> Fictional listings · demonstration only</span>
+    <button class="text-button" id="demo-open">Team demo controls <span aria-hidden="true">↗</span></button>
+  </div>
+  <header class="site-header">
+    <a href="#main" class="brand" aria-label="ShortStay workspace"><span class="brand-symbol" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8M6 9v12h12V9M10 21v-7h4v7"/></svg>
+      </span>ShortStay<span class="brand-note">a little more clarity</span></a>
+    <nav aria-label="Workspace navigation">
+      <a href="#shortlist">Shortlist</a>
+      <a href="#inbox">Updates <span class="nav-count" id="unread-count">0</span></a>
+      <a href="#decision">My decision</a>
+    </nav>
+    <span class="avatar" aria-label="Fictional demo user T1">T1</span>
+  </header>
+  <main id="main">
+    <div id="storage-alert" class="storage-alert" role="alert" hidden></div>
+    <section class="tips" id="tips" aria-labelledby="tips-heading" hidden>
+      <div class="tips-content">
+        <p class="eyebrow">FIRST TIME HERE?</p>
+        <h2 id="tips-heading" tabindex="-1">Three steps to get started</h2>
+        <ol class="tips-steps">
+          <li>
+            <strong>Set your dates and rent range</strong>
+            <span>Use Edit my needs. Matches update from them.</span></li>
+          <li>
+            <strong>Add listings you find</strong>
+            <span>Use + Add a listing for each place, with where you found it.</span></li>
+          <li>
+            <strong>Pick a first choice and note why</strong>
+            <span>Choose for now on a card, then write your reasoning in My decision.</span></li>
+        </ol>
+      </div>
+      <button class="icon-button" type="button" id="tips-close" aria-label="Dismiss getting-started tips">×</button>
+    </section>
+    <section class="page-intro">
+      <div>
+        <p class="eyebrow">YOUR HOUSING WORKSPACE</p>
+        <h1 tabindex="-1">A short stay. A clearer choice.</h1>
+        <p class="intro-copy">Keep your options, conversations, and next steps in one place.</p>
+      </div>
+      <div class="intro-tag"><span class="status-dot"></span><span id="workspace-tag">Demo workspace</span></div>
+    </section>
+    <section class="needs-bar" aria-label="Your housing needs">
+      <div class="needs-title">
+        <span class="small-label">I’M LOOKING FOR</span>
+        <strong>A furnished place in NYC</strong></div>
+      <div>
+        <span class="small-label">MY DATES</span>
+        <strong id="need-dates"></strong></div>
+      <div>
+        <span class="small-label">MONTHLY RENT RANGE</span>
+        <strong id="need-budget"></strong></div>
+      <button class="button secondary small" id="needs-open">Edit my needs</button>
+    </section>
+    <section class="next-up" id="next-up" aria-labelledby="next-up-heading">
+      <div class="next-heading">
+        <h2 id="next-up-heading">Next up</h2>
+        <p>Hints from what you have saved. Nothing changes until you change it.</p>
+      </div>
+      <div id="next-body"></div>
+    </section>
+    <section id="shortlist" aria-labelledby="shortlist-heading">
+      <div class="section-heading">
+        <div>
+          <h2 id="shortlist-heading">Your shortlist <span class="quiet-count" id="shortlist-count">0</span></h2>
+          <p id="shortlist-intro">Compare fictional NYC rooms across the five boroughs.</p>
+        </div>
+        <div class="section-actions">
+          <div class="summary-pills" id="summary-pills"></div>
+          <button type="button" class="button secondary small" id="add-listing">+ Add a listing</button>
+        </div>
+      </div>
+      <div class="listing-filter-bar">
+        <div class="listing-filters" role="group" aria-label="Listing view">
+          <button type="button" id="show-matches" aria-pressed="true" aria-controls="listings">Matches my needs <span id="matches-count">0</span></button>
+          <button type="button" id="show-all" aria-pressed="false" aria-controls="listings">All saved <span id="saved-count">0</span></button>
+        </div>
+        <p id="listing-visibility" role="status" aria-live="polite"></p>
+      </div>
+      <div class="list-tools">
+        <div class="density-toggle" role="group" aria-label="Card layout">
+          <button type="button" id="density-compact" aria-pressed="false">Compact</button>
+          <button type="button" id="density-detailed" aria-pressed="true">Detailed</button>
+        </div>
+        <div class="sort-field">
+          <label for="sort-listings">Sort by</label>
+          <select id="sort-listings">
+            <option value="default">Default</option>
+            <option value="rent">Rent (low→high)</option>
+            <option value="datefit">Date fit first</option>
+            <option value="contact">Contact status</option>
+            <option value="updated">Recently updated</option>
+          </select>
+        </div>
+      </div>
+      <div class="listing-grid" id="listings"></div>
+      <p class="comparison-note">Matches require full coverage of your saved dates and monthly rent within your selected range, including both endpoints. Rent checks exclude utilities, deposits, and other payment terms; review permission separately.</p>
+    </section>
+    <div class="lower-grid">
+      <section class="panel inbox-panel" id="inbox" aria-labelledby="inbox-heading">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">KEEP THE THREAD</p>
+            <h2 id="inbox-heading" tabindex="-1">Updates & reminders</h2>
+          </div>
+          <span class="count-label" id="message-count">0 updates</span>
+        </div>
+        <div id="messages"></div>
+      </section>
+      <section class="panel decision-panel" id="decision" aria-labelledby="decision-heading">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">YOUR CALL</p>
+            <h2 id="decision-heading">My current decision</h2>
+          </div>
+          <span class="outline-label">Provisional</span>
+        </div>
+        <form id="decision-form">
+          <label for="first-choice">Current first choice</label>
+          <select id="first-choice" name="choice">
+            <option value="">Undecided</option>
+          </select>
+          <div id="choice-warning" aria-live="polite"></div>
+          <div id="safety-warning" aria-live="polite"></div>
+          <div id="note-review"></div>
+          <label for="decision-note">Why is this your first choice? What still needs checking?</label>
+          <textarea id="decision-note" rows="3" maxlength="1200" aria-describedby="note-review"></textarea>
+          <div class="form-bottom">
+            <span class="muted decision-status" id="decision-status" aria-live="polite">You can change your mind.</span>
+            <button class="button primary small" type="submit">Save decision</button>
+          </div>
+        </form>
+      </section>
+    </div>
+    <section class="panel safety-panel" aria-labelledby="safety-heading">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">BEFORE YOU PAY</p>
+          <h2 id="safety-heading"><button type="button" class="disclosure" id="safety-toggle" aria-expanded="false" aria-controls="safety-body">Subletting safety tips</button></h2>
+        </div>
+      </div>
+      <div id="safety-body" hidden>
+        <ul class="safety-tips">
+          <li>Don’t pay a deposit or rent before you have seen the room, in person or on a live video call.</li>
+          <li>Check who you are dealing with: ask for ID and confirm they live there or hold the lease.</li>
+          <li>Ask whether the lease allows subletting, and get that permission in writing.</li>
+          <li>Get a written agreement with the dates, rent, deposit and how the deposit is returned.</li>
+          <li>Pay only in ways you can trace. Requests for gift cards, crypto or wire transfers to strangers are common scam signs.</li>
+          <li>Be wary of a price far below similar rooms, or pressure to decide or pay right away.</li>
+        </ul>
+        <p class="safety-disclaimer">These tips and the safety checks on each listing are reminders only. ShortStay does not verify hosts or identities and does not give legal advice.</p>
+        <!-- TODO: the team needs to add a verified, official Columbia University housing resources link here, then remove the hidden attribute below. Do not guess the URL. Hidden until then so participants never see a placeholder. -->
+        <p class="safety-link" hidden><span class="placeholder-link">Columbia housing resources (link to be added)</span></p>
+      </div>
+    </section>
+    <section class="panel activity-panel" aria-labelledby="activity-heading">
+      <div class="panel-heading">
+        <h2 id="activity-heading">Demo activity</h2>
+        <div class="activity-tools">
+          <button class="text-button" id="export-session" type="button">Export session (JSON)</button>
+          <button class="text-button" id="activity-toggle" aria-expanded="false" aria-controls="activity-body">Show activity</button>
+        </div>
+      </div>
+      <div id="activity-body" hidden>
+        <div class="activity-meta">
+          <div>
+            <label for="session-code">Session code</label>
+            <input id="session-code" maxlength="20" placeholder="e.g. T1" autocomplete="off" aria-describedby="session-code-help">
+            <p class="field-note" id="session-code-help">Use a code such as T1, never a name.</p>
+          </div>
+          <p class="muted" id="activity-summary"></p>
+        </div>
+        <ol id="activity-list"></ol>
+      </div>
+    </section>
+    <footer>
+      <p>ShortStay · CP3 smoke-and-mirrors prototype · <button type="button" class="text-button footer-link" id="tips-show">Show tips again</button></p>
+      <p>Changes stay in this browser. No real listings, messages, or participant results.</p>
+    </footer>
+  </main>
+  <nav class="bottom-nav" aria-label="Quick links"><a href="#shortlist">Shortlist</a><a href="#inbox">Updates <span class="nav-count" id="bottom-unread">0</span></a><a href="#decision">My decision</a></nav>
+  <dialog id="listing-dialog" aria-labelledby="listing-dialog-title">
+    <form id="listing-form">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow" id="listing-dialog-id"></p>
+          <h2 id="listing-dialog-title">Review listing</h2>
+        </div>
+        <button class="icon-button" type="button" data-close aria-label="Close listing details">×</button>
+      </div>
+      <div class="dialog-body">
+        <div class="message-context" id="listing-message-context" hidden></div>
+        <div class="form-grid">
+          <div>
+            <label for="listing-area">Area or neighborhood</label>
+            <input id="listing-area" name="area" maxlength="60" required>
+          </div>
+          <div>
+            <label for="listing-borough">Borough</label>
+            <select id="listing-borough" name="borough" required>
+              <option value="">Choose a borough</option>
+              <option>Manhattan</option>
+              <option>Brooklyn</option>
+              <option>Queens</option>
+              <option>Bronx</option>
+              <option>Staten Island</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label for="listing-source">Where did you find it?</label>
+            <select id="listing-source" name="source">
+              <option value="">Not recorded</option>
+              <option>WeChat group</option>
+              <option>Facebook group</option>
+              <option>Friend or referral</option>
+              <option>Listing site</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="listing-sourceDetail">Link or where to find it</label>
+            <input id="listing-sourceDetail" name="sourceDetail" maxlength="300" aria-describedby="listing-source-help">
+          </div>
+        </div>
+        <p class="field-note" id="listing-source-help">Paste a link, or a note such as “WeChat: NYC Summer Sublets, Oct 20”.</p>
+        <div class="form-grid">
+          <div>
+            <label for="listing-rent">Monthly rent ($)</label>
+            <input id="listing-rent" name="rent" type="number" min="1" step="1" required>
+          </div>
+          <div>
+            <label for="listing-contact">Contact status</label>
+            <select id="listing-contact" name="contact">
+              <option>Not contacted</option>
+              <option>Waiting</option>
+              <option>Replied</option>
+              <option value="Closed">Closed (rented out / not considering)</option>
+            </select>
+          </div>
+          <div>
+            <label for="listing-start">Available from</label>
+            <input id="listing-start" name="start" type="date" required>
+          </div>
+          <div>
+            <label for="listing-end">Available until (checkout)</label>
+            <input id="listing-end" name="end" type="date" required>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label for="listing-lastContacted">Last contacted (optional)</label>
+            <input id="listing-lastContacted" name="lastContacted" type="datetime-local">
+            <button type="button" class="text-button last-now" id="last-contacted-now">Set to now</button></div>
+        </div>
+        <details class="checks-section" id="listing-checks-section">
+          <summary>Verification and safety checks <span class="checks-later" id="listing-checks-later">Optional now. You can fill these in later from Review &amp; update.</span></summary>
+        <fieldset class="verify-fields">
+          <legend>Verification</legend>
+          <div class="form-grid">
+            <div>
+              <label for="listing-verify-permission">Permission to sublet</label>
+              <select id="listing-verify-permission" name="verify-permission" aria-describedby="verify-help">
+                <option>Unknown</option>
+                <option>Claimed</option>
+                <option>Verified</option>
+              </select>
+            </div>
+            <div>
+              <label for="listing-verify-fees">All fees known</label>
+              <select id="listing-verify-fees" name="verify-fees" aria-describedby="verify-help">
+                <option>Unknown</option>
+                <option>Claimed</option>
+                <option>Verified</option>
+              </select>
+            </div>
+            <div>
+              <label for="listing-viewing-status">Live viewing</label>
+              <output class="readonly-value" id="listing-viewing-status" for="listing-safety-viewedBeforePaying">Viewing: Not yet — set in Safety checks</output>
+            </div>
+            <div>
+              <label for="listing-verify-host">Host identity</label>
+              <select id="listing-verify-host" name="verify-host" aria-describedby="verify-help">
+                <option>Unknown</option>
+                <option>Claimed</option>
+                <option>Verified</option>
+              </select>
+            </div>
+          </div>
+          <p class="field-note" id="verify-help"><strong>Claimed:</strong> the host says so, no proof. <strong>Verified:</strong> you saw proof yourself, such as written permission or the full list of fees. <strong>Unknown:</strong> not asked or not answered yet.</p>
+        </fieldset>
+        <fieldset class="verify-fields safety-fields">
+          <legend>Safety checks</legend>
+          <div class="form-grid">
+            <div>
+              <label for="listing-safety-viewedBeforePaying">Viewed before paying</label>
+              <p class="field-note safety-help" id="safety-help-viewedBeforePaying">Mark Done only after you have seen the room in person or on a live video call.</p>
+              <p class="field-note required-note" id="safety-required-viewedBeforePaying">Required before paying — can’t be skipped.</p>
+              <select id="listing-safety-viewedBeforePaying" name="safety-viewedBeforePaying" aria-describedby="safety-help-viewedBeforePaying safety-required-viewedBeforePaying viewing-confirm-note">
+                <option>Not yet</option>
+                <option>Done</option>
+              </select>
+              <p class="field-note viewing-confirm-note" id="viewing-confirm-note" hidden>Earlier you marked Live viewing Verified. It is now recorded only here: choose Done if you saw the room before paying anything, then save.</p>
+            </div>
+            <div>
+              <label for="listing-safety-identityChecked">Identity checked</label>
+              <p class="field-note safety-help" id="safety-help-identityChecked">You have checked who the host or subletter is.</p>
+              <select id="listing-safety-identityChecked" name="safety-identityChecked" aria-describedby="safety-help-identityChecked">
+                <option>Not yet</option>
+                <option>Done</option>
+                <option value="N/A">N/A (does not apply)</option>
+              </select>
+            </div>
+            <div>
+              <label for="listing-safety-writtenAgreement">Written agreement</label>
+              <p class="field-note safety-help" id="safety-help-writtenAgreement">Dates, rent and how the deposit is returned are in writing.</p>
+              <select id="listing-safety-writtenAgreement" name="safety-writtenAgreement" aria-describedby="safety-help-writtenAgreement">
+                <option>Not yet</option>
+                <option>Done</option>
+                <option value="N/A">N/A (does not apply)</option>
+              </select>
+            </div>
+            <div>
+              <label for="listing-safety-traceablePayment">Traceable payment only</label>
+              <p class="field-note safety-help" id="safety-help-traceablePayment">Mark Done once you have agreed a payment method that leaves a record (no gift cards, crypto or unexplained transfers).</p>
+              <p class="field-note required-note" id="safety-required-traceablePayment">Required before paying — can’t be skipped.</p>
+              <select id="listing-safety-traceablePayment" name="safety-traceablePayment" aria-describedby="safety-help-traceablePayment safety-required-traceablePayment">
+                <option>Not yet</option>
+                <option>Done</option>
+              </select>
+            </div>
+            <div>
+              <label for="listing-safety-priceReasonable">Price looks reasonable</label>
+              <p class="field-note safety-help" id="safety-help-priceReasonable">Not far below similar rooms nearby.</p>
+              <select id="listing-safety-priceReasonable" name="safety-priceReasonable" aria-describedby="safety-help-priceReasonable">
+                <option>Not yet</option>
+                <option>Done</option>
+                <option value="N/A">N/A (does not apply)</option>
+              </select>
+            </div>
+          </div>
+          <p class="field-note">These are reminders for you only. ShortStay does not verify hosts or identities and does not give legal advice.</p>
+          <p class="field-note" id="safety-na-note">N/A is only for Identity checked, Written agreement and Price looks reasonable, when that check does not apply to this room. It is not the same as Done: the card counts only Done.</p>
+        </fieldset>
+        </details>
+        <label for="listing-terms">Other payments / terms</label>
+        <textarea id="listing-terms" name="terms" rows="2" maxlength="800"></textarea>
+        <label for="listing-checks">What else needs checking? (notes)</label>
+        <textarea id="listing-checks" name="checks" rows="2" maxlength="800"></textarea>
+        <label for="listing-action">My next action</label>
+        <textarea id="listing-action" name="action" rows="2" maxlength="300"></textarea>
+        <p class="field-note">Record your own next step. ShortStay does not contact the host.</p>
+        <p class="form-error" id="listing-error" role="alert"></p>
+      </div>
+      <div class="dialog-footer">
+        <button class="text-button danger remove-listing" type="button" id="listing-remove" hidden>Remove listing…</button>
+        <button class="button secondary" type="button" data-close>Cancel</button>
+        <button class="button primary" type="submit" id="listing-submit">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="needs-dialog" aria-labelledby="needs-dialog-title">
+    <form id="needs-form">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">YOUR SEARCH</p>
+          <h2 id="needs-dialog-title">What do you need?</h2>
+        </div>
+        <button class="icon-button" type="button" data-close aria-label="Close housing needs">×</button>
+      </div>
+      <div class="dialog-body">
+        <div class="form-grid">
+          <div>
+            <label for="need-start">Move-in date</label>
+            <input type="date" id="need-start" required>
+          </div>
+          <div>
+            <label for="need-end">Checkout date</label>
+            <input type="date" id="need-end" required>
+          </div>
+        </div>
+        <fieldset class="budget-fields">
+          <legend>Monthly rent range</legend>
+          <div class="form-grid">
+            <div>
+              <label for="budget-min">Minimum monthly rent ($)</label>
+              <input type="number" id="budget-min" min="0" step="1" aria-describedby="budget-range-help" required>
+            </div>
+            <div>
+              <label for="budget-max">Maximum monthly rent ($)</label>
+              <input type="number" id="budget-max" min="0" step="1" aria-describedby="budget-range-help" required>
+            </div>
+          </div>
+          <p class="field-note" id="budget-range-help">Enter 0 for no minimum. Both ends are included. Rent checks exclude utilities, deposits, and other payment terms.</p>
+        </fieldset>
+        <p id="needs-error" class="form-error" role="alert"></p>
+      </div>
+      <div class="dialog-footer">
+        <button class="button secondary" type="button" data-close>Cancel</button>
+        <button class="button primary" type="submit">Update my needs</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="demo-dialog" aria-labelledby="demo-title">
+    <div class="dialog-heading">
+      <div>
+        <p class="eyebrow">TEAM ONLY · SIMULATION</p>
+        <h2 id="demo-title">Run the two demo moments</h2>
+      </div>
+      <button class="icon-button" data-close aria-label="Close demo controls">×</button>
+    </div>
+    <div class="dialog-body">
+      <p class="demo-explanation">Use this panel while presenting to the group. These events are entered by a team operator; they are not connected to a host or a live timer.</p>
+      <p class="choice-warning caution demo-off" id="demo-events-note" hidden>These two events only work with the example listings (B05 and B02), so they are turned off in an empty workspace. Use Reset demo to bring the examples back.</p>
+      <div class="demo-step">
+        <span class="step-number">1</span>
+        <div>
+          <h3>A host changes the dates</h3>
+          <p>Deliver a fictional message: B05's latest checkout is August 13, two days earlier than posted.</p>
+          <p class="field-note">The message appears in Updates. The user can apply the suggested change there (Apply change, after a confirmation and with Undo) or edit B05's record themselves.</p>
+          <button class="button primary small" id="deliver-host">Deliver host message</button></div>
+      </div>
+      <div class="demo-step">
+        <span class="step-number">2</span>
+        <div>
+          <h3>A conversation needs a follow-up</h3>
+          <p>Add a manual reminder that B02 is still marked Waiting after 12 hours.</p>
+          <p class="field-note">Scenario: Apr 27, 2026, 21:00. Last contact: Apr 27, 2026, 09:00. No automatic timer runs.</p>
+          <button class="button primary small" id="deliver-reminder">Add manual reminder</button></div>
+      </div>
+      <div class="ownership-note"><strong>What is working?</strong>
+        <p>Users edit records and decisions. Date and rent checks calculate automatically. Host messages and reminders are manually triggered. All data is fictional and is not participant evidence.</p>
+      </div>
+    </div>
+    <div class="dialog-footer split">
+      <div class="footer-actions">
+        <button class="text-button danger" id="reset-open">Reset demo…</button>
+        <button class="text-button danger" id="empty-open">Start empty workspace…</button>
+      </div>
+      <button class="button secondary" data-close>Back to workspace</button>
+    </div>
+  </dialog>
+  <dialog id="apply-dialog" aria-labelledby="apply-title" aria-describedby="apply-preview">
+    <div class="dialog-heading">
+      <div>
+        <p class="eyebrow">FROM A HOST MESSAGE</p>
+        <h2 id="apply-title">Apply this change?</h2>
+      </div>
+      <button class="icon-button" type="button" data-close aria-label="Close apply change">×</button>
+    </div>
+    <div class="dialog-body">
+      <dl class="apply-table" id="apply-table"></dl>
+      <div id="apply-warning"></div>
+      <p class="apply-preview" id="apply-preview"></p>
+      <p class="field-note" id="apply-note">Only this field changes, and the message is marked reviewed. ShortStay does not check what the host says.</p>
+    </div>
+    <div class="dialog-footer">
+      <button class="button secondary" type="button" data-close>Cancel</button>
+      <button class="button primary" type="button" id="apply-confirm">Apply change</button>
+    </div>
+  </dialog>
+  <dialog id="reset-dialog" aria-labelledby="reset-title">
+    <div class="dialog-heading">
+      <h2 id="reset-title">Start the demo again?</h2>
+    </div>
+    <div class="dialog-body">
+      <p>This resets the fictional listings, messages, and decision notes in this browser to the initial example. Listings you added are removed.</p>
+      <p id="reset-log-note"></p>
+    </div>
+    <div class="dialog-footer">
+      <button class="button secondary" id="reset-export" type="button">Export session first</button>
+      <button class="button secondary" data-close>Keep my changes</button>
+      <button class="button primary" id="reset-confirm">Reset demo</button>
+    </div>
+  </dialog>
+  <dialog id="empty-dialog" aria-labelledby="empty-title">
+    <div class="dialog-heading">
+      <h2 id="empty-title">Start an empty workspace?</h2>
+    </div>
+    <div class="dialog-body">
+      <p>This clears the current data in this browser: all listings (the 12 examples and any you added), messages, your first choice and your reasoning. Your dates and rent range go back to the defaults. You then add your own listings from scratch.</p>
+      <p id="empty-log-note"></p>
+    </div>
+    <div class="dialog-footer">
+      <button class="button secondary" id="empty-export" type="button">Export session first</button>
+      <button class="button secondary" data-close>Keep my changes</button>
+      <button class="button primary" id="empty-confirm">Start empty workspace</button>
+    </div>
+  </dialog>
+  <dialog id="remove-dialog" aria-labelledby="remove-title" aria-describedby="remove-text">
+    <div class="dialog-heading">
+      <h2 id="remove-title">Remove this listing?</h2>
+    </div>
+    <div class="dialog-body">
+      <p id="remove-text"></p>
+    </div>
+    <div class="dialog-footer">
+      <button class="button secondary" data-close>Keep listing</button>
+      <button class="button primary danger-button" id="remove-confirm">Remove listing</button>
+    </div>
+  </dialog>
+  <dialog id="discard-dialog" aria-labelledby="discard-title" aria-describedby="discard-text">
+    <div class="dialog-heading">
+      <h2 id="discard-title">Discard this new listing?</h2>
+    </div>
+    <div class="dialog-body">
+      <p id="discard-text">What you have typed has not been saved and will be lost.</p>
+    </div>
+    <div class="dialog-footer">
+      <button class="button secondary" data-close>Keep editing</button>
+      <button class="button primary danger-button" id="discard-confirm">Discard</button>
+    </div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" tabindex="-1"></div>
+  <script src="app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# Local operating-system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Local credentials and service configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.openai/
+.claude/
+
+# Dependencies and temporary artifacts
+node_modules/
+.venv/
+__pycache__/
+*.log
+coverage/
+test-results/
+playwright-report/
+
+# Recordings and packaged backups
+*.mov
+*.mp4
+*.zip
+*.tar.gz
+
+# dist/ contains this prototype's actual application code. Keep it tracked.
