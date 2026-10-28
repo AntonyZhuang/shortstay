@@ -133,7 +133,7 @@
   const UNDO_KEY = /mac|iphone|ipad/i.test(navigator.userAgentData?.platform || navigator.platform || '') ? '⌘Z' : 'Ctrl+Z';
   const CONTACT_ORDER = ['Replied', 'Waiting', 'Not contacted', 'Closed'];
   const SHORT_FIELD = {start: 'move-in', end: 'checkout', rent: 'rent'};
-  const NEXT_MAX = 5, NEXT_MOBILE = 3, WAIT_LIMIT = 2 * 86400000;
+  const NEXT_MAX = 5, NEXT_MOBILE = 3, WAIT_LIMIT = 12 * 3600000;  // CP3 test: nudge after 12 hours without a reply
   // Where Next up's 'Open updates', 'Review reasoning' and 'Choose in My decision' buttons go: [section to scroll to, element to focus].
   const NEXT_TARGETS = {inbox: ['inbox', 'inbox-heading'], decision: ['decision', 'decision-note'], choice: ['decision', 'first-choice']};
   const FIELD_LABELS = {
@@ -290,7 +290,9 @@
   function createInitialState(mode = 'example') {
     const isEmpty = mode === 'empty';
     return {
-      version: 1, mode: isEmpty ? 'empty' : 'example', needs: {start: '2026-06-01', end: '2026-08-15', budgetMin: 0, budgetMax: 2200},
+      version: 1, mode: isEmpty ? 'empty' : 'example', // CP3 test brief: the empty workspace starts with next summer's dates and the $1,800 budget.
+      needs: isEmpty ? {start: '2027-06-01', end: '2027-08-15', budgetMin: 0, budgetMax: 1800}
+        : {start: '2026-06-01', end: '2026-08-15', budgetMin: 0, budgetMax: 2200},
       choice: isEmpty ? '' : 'B05', noteFor: isEmpty ? '' : 'B05',
       note: isEmpty ? '' : 'B05 is a provisional preference. Review permission information and complete a live viewing before committing.',
       listings: isEmpty ? [] : DEMO_LISTINGS.map(listing => ({...listing, verify: getVerifyLevels(listing), safety: getSafetyLevels(listing)})),
@@ -572,7 +574,7 @@
     state.listings.forEach(l => {
       const waited = Date.now() - (l.lastContacted ? new Date(l.lastContacted).getTime() : NaN);
       if (l.contact === 'Waiting' && waited > WAIT_LIMIT) {
-        items.push({kind: 'Waiting', text: `${l.id} waiting ${Math.floor(waited / 86400000)} days since last contact`, ...makeReviewItem(l, 'contact')});
+        items.push({kind: 'Waiting', text: `${l.id} waiting ${Math.floor(waited / 3600000)} hours since last contact. Message a backup?`, ...makeReviewItem(l, 'contact')});
       }
     });
     if (state.note && state.noteFor !== state.choice) {
@@ -1640,6 +1642,10 @@
   delegateClicks('note-review', [['[data-keep-note]', keepReasoning]]);
   window.addEventListener('beforeunload', warnBeforeLeaving);
   $('decision-form').addEventListener('submit', saveDecision);
+  // Participants never see the team controls or the activity log; facilitators open the page with ?team in the URL.
+  const isTeamView = new URLSearchParams(location.search).has('team');
+  $('demo-open').hidden = !isTeamView;
+  document.querySelector('.activity-panel').hidden = !isTeamView;
   $('demo-open').addEventListener('click', () => openDialog('demo-dialog'));
   $('deliver-host').addEventListener('click', () => deliverDemoMessage('host'));
   $('deliver-reminder').addEventListener('click', () => deliverDemoMessage('reminder'));
